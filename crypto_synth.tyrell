@@ -1,0 +1,17 @@
+enum RawInt {
+    "0", "1"
+}
+
+value Empty;
+value Str;
+value Int;
+value List;
+
+program Decrypt(Str) -> Str;
+func empty: Empty -> Empty;
+
+func get_int: Int -> RawInt;
+
+func vinegere: Str -> Str, Int;
+
+func bit_to_string: Str -> Str;

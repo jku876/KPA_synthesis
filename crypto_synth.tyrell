@@ -1,5 +1,5 @@
 enum RawInt {
-    "0", "1"
+    "0", "1", "2", "3", "4"
 }
 
 value Empty;
@@ -12,6 +12,10 @@ func empty: Empty -> Empty;
 
 func get_int: Int -> RawInt;
 
-func vinegere: Str -> Str, Int;
+func caesar: Str -> Str, Int;
+
+func one_time_pad: Str -> Str, Int;
+
+func prf_scheme: Str -> Str, Int;
 
 func bit_to_string: Str -> Str;

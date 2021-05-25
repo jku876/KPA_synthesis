@@ -12,12 +12,6 @@ logger = get_logger('tyrell')
 
 class DecryptionInterpreter(PostOrderInterpreter):
 
-    # TODO: Add check for decryption functions
-    # Need to check that string is all 0's and 1's
-    # TODO: eval_bit_to_string should be the last function in all cases
-    # if node does not work, stop there
-
-
     def eval_get_int(self, node, args):
         return int(args[0])
 
@@ -25,6 +19,9 @@ class DecryptionInterpreter(PostOrderInterpreter):
         arg_bits = args[0]
         arg_key = args[1]
         if len(arg_bits)%7 != 0:
+            raise GeneralError()
+        ct_set = set(arg_bits)
+        if not (ct_set == {'0','1'} or ct_set == {'0'} or ct_set == {'1'}):
             raise GeneralError()
         res = ''
         for i in range(len(arg_bits)//7):
@@ -37,6 +34,9 @@ class DecryptionInterpreter(PostOrderInterpreter):
         arg_key = args[1]
         if len(arg_bits)%7 != 0:
             raise GeneralError()
+        ct_set = set(arg_bits)
+        if not (ct_set == {'0','1'} or ct_set == {'0'} or ct_set == {'1'}):
+            raise GeneralError()
         random.seed(arg_key)
         res = ''
         for i in range(len(arg_bits)//7):
@@ -48,6 +48,9 @@ class DecryptionInterpreter(PostOrderInterpreter):
         arg_bits = args[0]
         arg_key = args[1]
         if len(arg_bits)%14 != 0:
+            raise GeneralError()
+        ct_set = set(arg_bits)
+        if not (ct_set == {'0','1'} or ct_set == {'0'} or ct_set == {'1'}):
             raise GeneralError()
         res = ''
         for i in range(len(arg_bits)//14):
@@ -63,6 +66,9 @@ class DecryptionInterpreter(PostOrderInterpreter):
         
     def eval_bit_to_string(self, node, args):
         arg_bits = args[0]
+        ct_set = set(arg_bits)
+        if not (ct_set == {'0','1'} or ct_set == {'0'} or ct_set == {'1'}):
+            raise GeneralError()
         if len(arg_bits)%7 != 0:
             raise GeneralError()
         return ''.join(chr(int(arg_bits[i*7:i*7+7],2)) for i in range(len(arg_bits)//7))
@@ -99,7 +105,7 @@ def enc_prf_scheme(message, key):
     return res
 
 def main():
-    print(enc_prf_scheme('abc', 0))
+    print(enc_prf_scheme('hello world', 36))
     logger.info('Parsing Spec...')
     # TBD: parse the DSL definition file and store it to `spec`
     spec = S.parse_file('./crypto_synth/crypto_synth.tyrell')
@@ -112,9 +118,24 @@ def main():
             spec=spec, # TBD: provide the spec here
             interpreter=DecryptionInterpreter(),
             examples=[
-                # Example(input = [enc_caesar('CS190I Program Synthesis', 2)], output = 'CS190I Program Synthesis')
-                # Example(input=[enc_one_time_pad('decrypting messages', 0)], output='decrypting messages')
-                Example(input=[enc_prf_scheme('abc', 4)], output='abc')
+                # enc_caesar('CS190I Program Synthesis', 52)
+                # Example(input = ['111011100001111100101110110111001001111101101010000'+
+                #                  '001000100110010001100110110100110001010101000011010'+
+                #                  '100000011101011010100010010100000111000011001010011'+
+                #                  '100111010100111'], 
+                #         output = 'CS190I Program Synthesis')
+
+                # enc_one_time_pad('decrypting messages', 121)
+                # Example(input = ['111001010100100000110101111110101000100100011110110'+
+                #                  '001100000010110100110011101001100110001100010110011'+
+                #                  '1100110111001010010111111010101'], 
+                #         output = 'decrypting messages')
+                
+                # enc_prf_scheme('hello world', 36)
+                Example(input = ['001001101010001100100110110111011010100110000011110'+
+                                 '101111010000000110101011100001001000001000110001001'+
+                                 '0011011010100001011110111001001101100110000101101101'], 
+                        output='hello world')
             ],
         )
     )
@@ -130,3 +151,4 @@ def main():
 if __name__ == '__main__':
     logger.setLevel('DEBUG')
     main()
+
